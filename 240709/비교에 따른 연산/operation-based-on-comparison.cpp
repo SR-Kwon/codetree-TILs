@@ -6,7 +6,7 @@ int main() {
 
     cin >> a >> b;
     if(a > b) ans = a * b;
-    else ans = b % a;
+    else ans = b / a;
 
     cout << ans;
     return 0;
