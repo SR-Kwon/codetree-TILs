@@ -13,7 +13,7 @@ int main() {
         cout << endl << endl;
     }
 
-    for(int i = 4; i > 0 ; i--){
+    for(int i = n - 1; i >= 0 ; i--){
         times = i;
         for(int j = 0; j < times; j++){
             cout << '*';
