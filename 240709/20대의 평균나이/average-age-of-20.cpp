@@ -6,7 +6,7 @@ int main() {
     float sum = 0;
     while(true){
         cin >> temp;
-        if(temp >= 30) break;
+        if(temp / 10 != 2) break;
         sum += temp;
         count++;
     }
