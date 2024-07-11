@@ -10,8 +10,8 @@ int main() {
     BA = B + A;
 
     for(int i = 0; i < AB.length(); i++){
-        if(AB[i] != BA[i]){cout << "false"; break;}
-        else{cout << "true"; break;}
+        if(AB[i] != BA[i]){cout << "false"; return 0;}
     }
+    cout << "true";
     return 0;
 }
