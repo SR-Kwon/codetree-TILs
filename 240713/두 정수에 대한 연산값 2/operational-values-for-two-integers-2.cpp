@@ -4,13 +4,13 @@ using namespace std;
 void mod(int &a, int &b){
 
     if(a > b){
-        int temp;
-        temp = a;
-        a = b;
-        b = a;
+        b += 10; 
+        a *= 2;
     }
-    a += 10; 
-    b *= 2;
+    else{
+        a += 10; 
+        b *= 2;
+    }
 }
 
 int main() {
