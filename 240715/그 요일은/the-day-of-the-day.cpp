@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 using namespace std;
 
 int day_per_month(int month){
@@ -30,8 +31,27 @@ int day_per_month(int month){
     }
 }
 
+int day_to_num(string day) {
+    if (day == "Mon")
+        return 0;
+    else if (day == "Tue")
+        return 1;
+    else if (day == "Wed")
+        return 2;
+    else if (day == "Thu")
+        return 3;
+    else if (day == "Fri")
+        return 4;
+    else if (day == "Sat")
+        return 5;
+    else if (day == "Sun")
+        return 6;
+    else
+        return -1;
+}
+
 int count_day(int from_month, int from_date, int to_month, int to_date){
-    int count = 0;
+    int count = 1;
     for(int i = from_month; i < to_month; i++){
         count += day_per_month(i);
     }
@@ -40,11 +60,23 @@ int count_day(int from_month, int from_date, int to_month, int to_date){
 }
 
 int main() {
-    int from_month, from_date, to_month, to_date;
+    int from_month, from_date, to_month, to_date, remain, ito = 0;
+    string target;
+    vector<int> count = {0,0,0,0,0,0,0};
 
-    cin >> from_month >> from_date >> to_month >> to_date;
+    cin >> from_month >> from_date >> to_month >> to_date >> target;
+    remain = count_day(from_month, from_date, to_month, to_date);
+    while(remain > 0){
 
-    cout << count_day(from_month, from_date, to_month, to_date) % 7;
+        count[ito++ % 7]++;
+        remain--;
+    }
+
+    cout << count[day_to_num(target)];
+
+    // for(int i = 0; i < count.size(); i++){
+    //     cout << count[i] << ' ';
+    // }
 
     return 0;
 }
