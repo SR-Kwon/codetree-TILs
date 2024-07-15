@@ -6,7 +6,7 @@ using namespace std;
 //white = -1;
 //black = 1;
 
-vector<int> tiles(201);
+vector<int> tiles(2001);
 
 int R(int step, int pointer){
     for(int i = 0; i < step; i++){
@@ -25,7 +25,7 @@ int L(int step, int pointer){
 }
 
 int main() {
-    int dir_num, step, pointer = 100;
+    int dir_num, step, pointer = 1000;
     char direction;
     cin >> dir_num;
 
