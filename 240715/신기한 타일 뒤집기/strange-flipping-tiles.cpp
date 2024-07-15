@@ -10,10 +10,10 @@ vector<int> tiles(9001);
 
 int R(int step, int pointer){
     for(int i = 0; i < step; i++){
-        tiles[++pointer] = 1;
+        tiles[pointer++] = 1;
     }
 
-    return pointer;
+    return pointer - 1;
 }
 
 int L(int step, int pointer){
@@ -21,7 +21,7 @@ int L(int step, int pointer){
         tiles[pointer--] = -1;
     }
 
-    return pointer;
+    return pointer + 1;
 }
 
 int main() {
