@@ -25,8 +25,9 @@ int main() {
     char dir;
     cin >> n >> t;
     cin >> y >> x >> dir;
-    y--;
+    n--;
     x--;
+    y--;
     for(int i = 0; i < t; i++){
         int nx = x + dx[dir_to_num(dir)];
         int ny = y + dy[dir_to_num(dir)];
