@@ -29,7 +29,7 @@ char L(char dir){
 }
 
 int main() {
-    int x = 0, y = 1, count = 0;
+    int x = 0, y = 0, count = 0;
     string line;
     getline(cin, line);
     char dir = 'N';
@@ -37,16 +37,18 @@ int main() {
 
     for(int i = 0; i < line.length(); i++){
         cmd = line[i];
-        if(cmd == 'F'){ }
+        if(cmd == 'F'){ 
+            x += dx[dir_to_num(dir)];
+            y += dy[dir_to_num(dir)];
+        }
         else if(cmd == 'R'){
             dir = R(dir);
         }
         else if(cmd == 'L'){
             dir = L(dir);
         }
-        x += dx[dir_to_num(dir)];
-        y += dy[dir_to_num(dir)];
         count++;
+        // cout << x << ' ' << y << ' ' << dir << ' ' << cmd <<endl;
         if(x == 0 && y == 0){
             cout << count;
             return 0;
