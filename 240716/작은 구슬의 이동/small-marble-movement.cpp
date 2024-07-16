@@ -6,10 +6,10 @@ using namespace std;
 
 //위 아래 오른쪽 왼쪽
 int dx[DIR_NUM] = {0,0,1,-1};
-int dy[DIR_NUM] = {1,-1,0,0};
+int dy[DIR_NUM] = {-1,1,0,0};
 
 bool in_range(int x, int y, int n){
-    return (x <= n && 0 <= x && 0 <= y && y <= n);
+    return (x <= n && 1 <= x && 1 <= y && y <= n);
 }
 
 int dir_to_num(char dir){
@@ -25,9 +25,6 @@ int main() {
     char dir;
     cin >> n >> t;
     cin >> y >> x >> dir;
-    n--;
-    x--;
-    y--;
     for(int i = 0; i < t; i++){
         int nx = x + dx[dir_to_num(dir)];
         int ny = y + dy[dir_to_num(dir)];
@@ -43,7 +40,7 @@ int main() {
         }
     }
 
-    cout << y + 1 << ' ' << x + 1;
+    cout << y << ' ' << x;
 
     return 0;
 }
