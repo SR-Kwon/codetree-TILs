@@ -5,8 +5,8 @@ using namespace std;
 #define DIR_NUM 4
 
 //E W S N
-int dx[DIR_NUM] = {1,-1,0,0};
-int dy[DIR_NUM] = {0,0,-1,1};
+int dx[DIR_NUM] = {0,0,1,-1};
+int dy[DIR_NUM] = {1,-1,0,0};
 
 int dir_to_num(char dir){
     if(dir == 'E') return 0;
@@ -15,14 +15,14 @@ int dir_to_num(char dir){
     else if(dir == 'N') return 3;
 }
 
-char L(char dir){
+char R(char dir){
     if(dir == 'E') return 'S';
     else if(dir == 'W') return 'N';
     else if(dir == 'S') return 'W';
     else if(dir == 'N') return 'E';
 }
 
-char R(char dir){
+char L(char dir){
     if(dir == 'E') return 'N';
     else if(dir == 'W') return 'S';
     else if(dir == 'S') return 'E';
@@ -54,7 +54,6 @@ int main() {
         com = cmd[i];
         if(com == 'R'){
             dir = R(dir);
-
         }
         else if(com == 'L'){
             dir = L(dir);
