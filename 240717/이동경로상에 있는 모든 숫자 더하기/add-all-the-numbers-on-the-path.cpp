@@ -62,10 +62,7 @@ int main() {
         else if(com == 'F'){
             int nx = x + dx[dir_to_num(dir)];
             int ny = y + dy[dir_to_num(dir)];
-            if(1 > mat[nx][ny] || 9 < mat[nx][ny]){
-
-            }
-            else{
+            if(val_range(nx, ny, N)){
                 x = nx, y = ny;
                 result += mat[x][y];
             }
