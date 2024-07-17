@@ -23,7 +23,7 @@ bool val_safe(int x, int y){
         if(mat[nx][ny] == 1) count++;
     }
     
-    return count >= 3;
+    return count == 3;
 }
 
 int main() {
@@ -36,10 +36,6 @@ int main() {
         if(val_range(x, y, N) && val_safe(x, y)) cout << 1 << endl;
         else cout << 0 << endl;
     }
-
-
-
-
 
     return 0;
 }
