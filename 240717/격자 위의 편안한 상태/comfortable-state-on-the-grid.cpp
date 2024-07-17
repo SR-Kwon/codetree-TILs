@@ -32,6 +32,8 @@ int main() {
     for(int i = 0; i < M; i++){
         int x, y;
         cin >> x >> y;
+        x--;
+        y--;
         mat[x][y] = 1;
         if(val_range(x, y, N) && val_safe(x, y)) cout << 1 << endl;
         else cout << 0 << endl;
