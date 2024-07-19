@@ -14,9 +14,10 @@ int main() {
         all += num[i];
     }
 
-    for(int i = 0; i < N; i++){
-        for(int t = 0; t < N; t++){
+    for(int i = 0; i < N - 1; i++){
+        for(int t = i + 1; t < N; t++){
             sums.push_back(all - num[i] - num[t]);
+            // cout << all - num[i] - num[t] << ' ';
         }
     }
 
