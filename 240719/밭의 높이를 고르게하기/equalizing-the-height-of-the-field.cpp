@@ -13,7 +13,7 @@ int main() {
         cin >> ground[i];
     }
     
-    for(int i = 0; i < N - T; i++){
+    for(int i = 0; i < N - T + 1; i++){
         int cost = 0;
         for(int t = 0; t < T; t++){
             cost += abs(ground[i + t] - H);
