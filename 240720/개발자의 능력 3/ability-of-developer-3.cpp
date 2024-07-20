@@ -20,7 +20,7 @@ int main() {
     for(int i = 0; i < 6; i++)
         cin >> numbers[i];
 
-    int min_diff = 100;
+    int min_diff = 1000001;
     
     for(int i = 0; i < 6; i++)
         for(int j = i + 1; j < 6; j++)
