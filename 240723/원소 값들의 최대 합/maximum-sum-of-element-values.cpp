@@ -2,52 +2,31 @@
 #include <vector>
 using namespace std;
 
-vector<int> v;
-int m;
-
-int get_move(int start){
-    int sum = 0;
-    int current = start;
-
-    for(int i = 0; i < m; i++){
-        //받은 인덱스에 있는 수를 가져옴
-        int next = v[current - 1];
-            //만약 이미 가있다면 break 한다.
-        if(next == current){
-            break;
-        }
-            //아니면 sum에 더해준다.
-        else{
-            sum += current;
-        }
-        //가야하는곳에 있던 수를 다음에 사용할수 있게 start로 바꿔준다.
-        current = next;
-        // //해당 수가 가야하는곳으로 옯겨준다.
-        // v[temp - 1] = temp;
-    }
-
-    return sum;
-}
-
-
 int main() {
-    int n, max_sum = -1;
+    int n, m;
     cin >> n >> m;
-
-    for(int i = 0; i < n; i++){
-        int temp;
-        cin >> temp;
-        v.push_back(temp);
+    
+    vector<int> sequence(n + 1); // 1부터 시작하는 인덱싱을 위해 n + 1 크기 할당
+    for (int i = 1; i <= n; i++) {
+        cin >> sequence[i];
     }
-
-    for(int i = 1; i < n + 1; i++){
-        int current_sum =  get_move(i);
-        if(current_sum > max_sum){
-            max_sum = current_sum;
+    
+    int maxSum = 0; // 최대 원소값들의 합을 저장할 변수
+    
+    // 모든 위치에서 시작해보며 최대 원소값들의 합을 찾음
+    for (int start = 1; start <= n; start++) {
+        int sum = 0; // 현재 시작 위치에서의 원소값들의 합
+        int currentPosition = start; // 현재 위치
+        
+        for (int move = 0; move < m; move++) { // m번 움직임 반복
+            currentPosition = sequence[currentPosition]; // 원소값을 다음 위치로 사용
+            sum += currentPosition; // 원소값을 합에 추가
         }
+        
+        maxSum = max(maxSum, sum); // 최대 원소값들의 합 갱신
     }
-
-    cout << max_sum;
-
+    
+    cout << maxSum << endl; // 최대 원소값들의 합 출력
+    
     return 0;
 }
