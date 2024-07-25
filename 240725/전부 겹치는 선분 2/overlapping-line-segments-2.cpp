@@ -35,7 +35,7 @@ int main() {
         }
     }
 
-    if(count > 0){
+    if(count == 1 || count == (n-1)){
         cout << "Yes";
     }
     else{
