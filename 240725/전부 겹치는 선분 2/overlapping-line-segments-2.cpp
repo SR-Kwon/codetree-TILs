@@ -21,8 +21,8 @@ int main() {
             max = x2;
         }
         //안쪽
-        else if(min < x1 && x2 < max){
-            
+        else if(min <= x1 && x2 <= max){
+            //pass
         }
         //바깥
         else if(min > x1 && x2 > max){
