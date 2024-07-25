@@ -14,7 +14,7 @@ int main() {
             if(current_position < x / 2)
                 current_speed++;
             else if(current_speed == 1){
-                //pass
+                current_speed = current_speed;
             }
             else if(current_position >= x / 2)
                 current_speed--;
@@ -23,7 +23,7 @@ int main() {
             if(current_position < x / 2 + 1)
                 current_speed++;
             else if(current_speed == 1){
-                //pass
+                current_speed = current_speed;
             }
             else if(current_position >= x / 2 + 1)
                 current_speed--; 
