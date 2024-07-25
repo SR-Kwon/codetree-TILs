@@ -8,28 +8,23 @@ int main() {
     int current_position = 0;
     int count = 0;
 
-    while(current_position != x){
+    while(current_position != x) {
         current_position += current_speed;
-        if(x % 2 == 0){
+        if(x % 2 == 0) {
             if(current_position < x / 2)
                 current_speed++;
-            else if(current_speed == 1){
-                current_speed = current_speed;
-            }
-            else if(current_position >= x / 2)
-                current_speed--;
+            else if(current_position >= x / 2 && current_position < x)
+                current_speed = max(current_speed - 1, 1);
         }
-        else{
+        else {
             if(current_position < x / 2 + 1)
                 current_speed++;
-            else if(current_speed == 1){
-                current_speed = current_speed;
-            }
-            else if(current_position >= x / 2 + 1)
-                current_speed--; 
+            else if(current_position >= x / 2 + 1 && current_position < x)
+                current_speed = max(current_speed - 1, 1);
         }
 
         count++;
+        if(current_position == x) break;
     }
 
     cout << count;
