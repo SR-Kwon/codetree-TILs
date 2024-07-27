@@ -8,7 +8,7 @@ int main() {
     int current_position = 0;
     int count = 0;
 
-    while(current_position != x){
+    while(current_position < x){
         current_position += current_speed;
         if(x % 2 == 0){
             if(current_position < x / 2)
