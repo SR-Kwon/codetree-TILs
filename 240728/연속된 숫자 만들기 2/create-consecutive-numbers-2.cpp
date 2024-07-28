@@ -28,18 +28,9 @@ int main() {
             break;
         }
         // 4. 01, 12 사이 거리중 작은곳에 홀수인경우(뒤에 가깝게)
-        else if((pos[1] - pos[0]) >= (pos[2] - pos[1]) && (pos[2] - pos[1]) % 2 == 1){
-            pos[0] = pos[1] + 1;
-        }
-        else if((pos[1] - pos[0]) < (pos[2] - pos[1]) && (pos[1] - pos[0]) % 2 == 1){
-            pos[2] = pos[0] + 1;
-        }
-        // 5. 01, 12 사이 거리중 작은곳이 짝수인경우(앞에 가깝게)
-        else if((pos[1] - pos[0]) >= (pos[2] - pos[1]) && (pos[2] - pos[1]) % 2 == 0){
-            pos[0] = pos[1] + 1;
-        }
-        else if((pos[1] - pos[0]) < (pos[2] - pos[1]) && (pos[1] - pos[0]) % 2 == 0){
-            pos[2] = pos[0] + 1;
+        else{
+            cout << cnt + 2;
+            break;
         }
         sort(pos, pos + 3);
         // cout << pos[0] << ' ' << pos[1] << ' ' << pos[2] << endl;
