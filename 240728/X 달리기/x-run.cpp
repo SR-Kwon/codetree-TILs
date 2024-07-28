@@ -7,22 +7,22 @@ int X;
 int main() {
     cin >> X;
 
-    int ans = 1;
+    int pos = 1;
     int speed = 1;
     int time = 1;
 
-    while (ans < X) {
-        ans += speed;
+    while(pos < X) {
+        pos += speed;
         time++;
         
         //속력이 감소하는 지점
-        if(X / 2 <= ans){
+        if(X - pos <= speed * (speed - 1) / 2){
             speed--;
         }else{
             speed++;
         }
 
-        // cout << ans << " " << speed << " " << X << " " << time << endl;
+        // cout << pos << " " << speed << " " << X << " " << time << endl;
     }
 
     cout << time;
