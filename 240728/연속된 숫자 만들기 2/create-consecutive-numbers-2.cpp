@@ -8,17 +8,19 @@ int main() {
     sort(pos, pos + 3);
 
     while(true){
-        // 1. 맞으면 유지
+        // 1. 맞으면 출력
         if((pos[1] - pos[0]) == 1 && (pos[2] - pos[1]) == 1){
             cout << cnt;
             break;
         }
         // 2. 01, 12 사이 거리가 1이면 거기로 나머지 하나 넣기
         if((pos[1] - pos[0]) == 2){
-            pos[2] = pos[1] - 1;
+            cout << cnt + 1;
+            break;
         }
         else if((pos[2] - pos[1]) == 2){
-            pos[0] = pos[2] - 1;
+            cout << cnt + 1;
+            break;
         }
         // 3. 01, 12사이의 거리가 1이면 +2 하면 끝
         else if((pos[1] - pos[0]) == 1 || (pos[2] - pos[1]) == 1){
