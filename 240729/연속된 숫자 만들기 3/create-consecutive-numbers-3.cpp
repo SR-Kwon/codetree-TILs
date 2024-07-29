@@ -10,7 +10,7 @@ int main() {
     if(arr[2]-arr[1] == 1 && arr[1] - arr[0] == 1){
         cnt = 0;
     }
-    else if(arr[2]-arr[1] == 2 || arr[1] - arr[0] == 2){
+    else if(arr[2]-arr[1] == 2 && arr[1] - arr[0] == 2){
         cnt = 1;
     }
     else{
