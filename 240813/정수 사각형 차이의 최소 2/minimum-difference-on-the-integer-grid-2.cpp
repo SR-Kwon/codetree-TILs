@@ -1,87 +1,74 @@
-#include <iostream>
-#define MAX_N 100
-
+#include <bits/stdc++.h>
 using namespace std;
 
-int N;
-pair<int, int> DP[MAX_N][MAX_N];
-int board[MAX_N][MAX_N];
+#define MX 100
 
-int absolute(pair<int, int> num){
-    return abs(num.second - num.first);
+int n;
+int mat[MX+1][MX+1];
+tuple<int, int, int> dp[MX+1][MX+1]; // |최댓값-최솟값|, 최댓값, 최솟값
+
+void setFirstRow(){
+    for(int j = 2; j <= n; j++){
+        int mx = max(get<1>(dp[1][j-1]), mat[1][j]);
+        int mn = min(get<2>(dp[1][j-1]), mat[1][j]);
+
+        if(abs(mx-mn) < get<0>(dp[1][j])){
+            dp[1][j] = {abs(mx-mn), mx, mn};
+        }
+    }
+}
+
+void setFirstCol(){
+    for(int i = 2; i <= n; i++){
+        int mx = max(get<1>(dp[i-1][1]), mat[i][1]);
+        int mn = min(get<2>(dp[i-1][1]), mat[i][1]);
+
+        if(abs(mx-mn) < get<0>(dp[i][1])){
+            dp[i][1] = {abs(mx-mn), mx, mn};
+        }
+    }
 }
 
 int main() {
-    cin >> N;
-    for(int i = 0 ; i < N ; i++){
-        for(int j = 0 ; j < N ; j++){
-            cin >> board[i][j];
-            // initialize DPh, DPl
+    cin >> n;
+    for(int i = 1; i <= n; i++){
+        for(int j = 1;  j <= n; j++){
+            cin >> mat[i][j];
         }
     }
-    // initialize DP
-    // row에 대해서 초기화
-    DP[0][0] = {board[0][0], board[0][0]};
-    for(int i = 1 ; i < N ; i++){
-        int low = DP[0][i-1].first, high = DP[0][i-1].second;
-        if(board[0][i] < low){
-            DP[0][i] = {board[0][i], high};
-        }
-        else if(board[0][i] > high){
-            DP[0][i] = {low, board[0][i]};
-        }
-        else{
-            DP[0][i] = DP[0][i-1];
-        }
 
-        if(board[i][0] < low){
-            DP[i][0] = {board[i][0], high};
-        }
-        else if(board[i][0] > high){
-            DP[i][0] = {low, board[i][0]};
-        }
-        else{
-            DP[i][0] = DP[i-1][0];
+    // dp 초기화
+    for(int i = 1; i <= n; i++){
+        for(int j = 1; j <= n; j++){
+            dp[i][j] = {INT_MAX, INT_MIN, INT_MAX};
         }
     }
-    for(int i = 1 ; i < N ; i++){
-        for(int j = 1 ; j < N ; j++){
-            // board[i][j]가 들어갔을 때, 위쪽에서 받아오는 것과 아래쪽에서 받아오는 것 중 절대값이 더 작은것으로 선택한다.
-            pair<int, int> upper = DP[i-1][j], lower = DP[i][j-1];
 
-            // update upper and lower when board[i][j] is in.
-            if(board[i][j] < upper.first){
-                upper = {board[i][j], upper.second};
-            }
-            else if(board[i][j] > upper.second){
-                upper = {upper.first, board[i][j]};
-            }
-            
-            if(board[i][j] < lower.first){
-                lower = {board[i][j], lower.second};
-            }
-            else if(board[i][j] > lower.second){
-                lower = {lower.first, board[i][j]};
-            }
-            int upper_abs = absolute(upper), lower_abs = absolute(lower);
-            if(upper_abs < lower_abs){
-                DP[i][j] = upper;
-            }else if (upper_abs > lower_abs){
-                DP[i][j] = lower;
+    // 시작점 설정
+    dp[1][1] = {0, mat[1][1], mat[1][1]};
+    setFirstRow();
+    setFirstCol();
+
+    for(int i = 2; i <= n; i++){
+        for(int j = 2; j <= n; j++){
+            int mx_up = max(get<1>(dp[i-1][j]), mat[i][j]);
+            int mn_up = min(get<2>(dp[i-1][j]), mat[i][j]);
+
+            int mx_left = max(get<1>(dp[i][j-1]), mat[i][j]);
+            int mn_left = min(get<2>(dp[i][j-1]), mat[i][j]);
+
+            if(abs(mx_up - mn_up) < abs(mx_left - mn_left)){
+                dp[i][j] = {abs(mx_up - mn_up), mx_up, mn_up};
+            }else if (abs(mx_up - mn_up) > abs(mx_left - mn_left)){
+                dp[i][j] = {abs(mx_left - mn_left), mx_left, mn_left};
             }else{
-                if(upper.second < lower.second){
-                    DP[i][j] = upper;
-                }else{
-                    DP[i][j] = lower;
-                }
+                if(mx_up < mx_left) dp[i][j] = {abs(mx_up - mn_up), mx_up, mn_up};
+                else dp[i][j] = {abs(mx_left - mn_left), mx_left, mn_left};
             }
         }
     }
-    // for(int i = 0 ; i < N ; i++){
-    //     for(int j = 0 ; j < N ; j++){
-    //         cout << '{' << DP[i][j].first << ", " << DP[i][j].second << "} ";
-    //     }cout << '\n';
-    // }
-    cout << absolute(DP[N-1][N-1]);
+
+    cout << get<0>(dp[n][n]);
+
     return 0;
 }
