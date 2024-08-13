@@ -1,74 +1,65 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <algorithm>
+
 using namespace std;
 
-#define MX 100
-
 int n;
-int mat[MX+1][MX+1];
-tuple<int, int, int> dp[MX+1][MX+1]; // |최댓값-최솟값|, 최댓값, 최솟값
+int arr[101][101];
+int dp[101][101];
 
-void setFirstRow(){
-    for(int j = 2; j <= n; j++){
-        int mx = max(get<1>(dp[1][j-1]), mat[1][j]);
-        int mn = min(get<2>(dp[1][j-1]), mat[1][j]);
+int ans = 21e8;
 
-        if(abs(mx-mn) < get<0>(dp[1][j])){
-            dp[1][j] = {abs(mx-mn), mx, mn};
-        }
-    }
+void Initial() {
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			dp[i][j] = 21e8;
+		}
+	}
+
+	dp[0][0] = arr[0][0];
+
+	for (int i = 1; i < n; i++) {
+		dp[i][0] = max(dp[i - 1][0], arr[i][0]);
+		dp[0][i] = max(dp[0][i - 1], arr[0][i]);
+	}
 }
 
-void setFirstCol(){
-    for(int i = 2; i <= n; i++){
-        int mx = max(get<1>(dp[i-1][1]), mat[i][1]);
-        int mn = min(get<2>(dp[i-1][1]), mat[i][1]);
+int Calc(int lower) {
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if (arr[i][j] < lower) {
+				arr[i][j] = 21e8;
+			}
+		}
+	}
 
-        if(abs(mx-mn) < get<0>(dp[i][1])){
-            dp[i][1] = {abs(mx-mn), mx, mn};
-        }
-    }
+	Initial();
+
+	for (int i = 1; i < n; i++) {
+		for (int j = 1; j < n; j++) {
+			dp[i][j] = max(min(dp[i - 1][j], dp[i][j - 1]), arr[i][j]);
+		}
+	}
+
+	return dp[n - 1][n - 1];
 }
 
-int main() {
-    cin >> n;
-    for(int i = 1; i <= n; i++){
-        for(int j = 1;  j <= n; j++){
-            cin >> mat[i][j];
-        }
-    }
+int main(){
+	cin >> n;
 
-    // dp 초기화
-    for(int i = 1; i <= n; i++){
-        for(int j = 1; j <= n; j++){
-            dp[i][j] = {INT_MAX, INT_MIN, INT_MAX};
-        }
-    }
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			cin >> arr[i][j];
+		}
+	}
 
-    // 시작점 설정
-    dp[1][1] = {0, mat[1][1], mat[1][1]};
-    setFirstRow();
-    setFirstCol();
+	for (int lower = 1; lower <= 101; lower++) {
+		int upper = Calc(lower);
 
-    for(int i = 2; i <= n; i++){
-        for(int j = 2; j <= n; j++){
-            int mx_up = max(get<1>(dp[i-1][j]), mat[i][j]);
-            int mn_up = min(get<2>(dp[i-1][j]), mat[i][j]);
+		if (upper == 21e8) continue;
 
-            int mx_left = max(get<1>(dp[i][j-1]), mat[i][j]);
-            int mn_left = min(get<2>(dp[i][j-1]), mat[i][j]);
+		ans = min(ans, upper - lower);
+	}
 
-            if(abs(mx_up - mn_up) < abs(mx_left - mn_left)){
-                dp[i][j] = {abs(mx_up - mn_up), mx_up, mn_up};
-            }else if (abs(mx_up - mn_up) > abs(mx_left - mn_left)){
-                dp[i][j] = {abs(mx_left - mn_left), mx_left, mn_left};
-            }else{
-                if(mx_up < mx_left) dp[i][j] = {abs(mx_up - mn_up), mx_up, mn_up};
-                else dp[i][j] = {abs(mx_left - mn_left), mx_left, mn_left};
-            }
-        }
-    }
-
-    cout << get<0>(dp[n][n]);
-
-    return 0;
+	cout << ans;
 }
