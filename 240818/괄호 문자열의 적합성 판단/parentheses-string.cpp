@@ -12,8 +12,8 @@ int main() {
         if(line[i] == '('){
             s.push(line[i]);
         }
-        else if(!s.empty() && line[i] == ')'){
-            if(s.top() == '('){
+        else if(line[i] == ')'){
+            if(!s.empty() && s.top() == '('){  // 스택이 비어 있는지 확인
                 s.pop();
             }
             else{
