@@ -12,7 +12,7 @@ int main() {
         if(line[i] == '('){
             s.push(line[i]);
         }
-        else if(line[i] == ')'){
+        else if(!s.empty() && line[i] == ')'){
             if(s.top() == '('){
                 s.pop();
             }
