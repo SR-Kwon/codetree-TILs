@@ -8,8 +8,8 @@ int partition(int low, int high);
 void quick_sort(int low, int high);
 void print_arr();
 
-void print_arr(){
-    for(int i = 0; i < 6; i++){
+void print_arr(int n){
+    for(int i = 0; i < n; i++){
         cout << arr[i] << ' ';
     }
     cout << endl;
@@ -57,7 +57,7 @@ int main() {
 
     quick_sort(0, n - 1);
 
-    print_arr();
+    print_arr(n);
    
     return 0;
 }
