@@ -10,6 +10,7 @@ int is_happy(int m, vector<int> line){
             count++;
         }
         else{
+            if(count >= m) return 1;
             count = 1;
         }
     }
@@ -44,7 +45,7 @@ int main() {
         }
         res += is_happy(m, temp);
     }
-    
+
     cout << res;
 
     return 0;
