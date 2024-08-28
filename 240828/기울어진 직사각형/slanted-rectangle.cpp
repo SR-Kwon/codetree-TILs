@@ -2,7 +2,6 @@
 #include <vector>
 using namespace std;
 
-// 대각선 이동에 대한 방향 벡터
 int a[2] = {1, 1};   // 아래 오른쪽
 int b[2] = {-1, 1};  // 위 오른쪽
 int c[2] = {-1, -1}; // 위 왼쪽
@@ -15,47 +14,41 @@ int get_max(vector<vector<int>>& mat, int n) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
 
-            // 각 길이 a, b, c, d를 시도
             for (int len_a = 1; len_a < n; len_a++) {
                 for (int len_b = 1; len_b < n; len_b++) {
-                    for (int len_c = 1; len_c < n; len_c++) {
-                        for (int len_d = 1; len_d < n; len_d++) {
-                            
-                            // 출발점에서 각 방향으로 이동한 후의 위치
-                            int x1 = i + len_a * a[0], y1 = j + len_a * a[1];
-                            int x2 = x1 + len_b * b[0], y2 = y1 + len_b * b[1];
-                            int x3 = x2 + len_c * c[0], y3 = y2 + len_c * c[1];
-                            int x4 = x3 + len_d * d[0], y4 = y3 + len_d * d[1];
-                            
-                            // 경계 조건 확인
-                            if (x1 >= 0 && x1 < n && y1 >= 0 && y1 < n &&
-                                x2 >= 0 && x2 < n && y2 >= 0 && y2 < n &&
-                                x3 >= 0 && x3 < n && y3 >= 0 && y3 < n &&
-                                x4 == i && y4 == j) {
+                    
+                    // 출발점에서 각 방향으로 이동한 후의 위치
+                    int x1 = i + len_a * a[0], y1 = j + len_a * a[1];
+                    int x2 = x1 + len_b * b[0], y2 = y1 + len_b * b[1];
+                    int x3 = x2 + len_a * c[0], y3 = y2 + len_a * c[1];
+                    int x4 = x3 + len_b * d[0], y4 = y3 + len_b * d[1];
+                    
+                    // 경계
+                    if (x1 >= 0 && x1 < n && y1 >= 0 && y1 < n &&
+                        x2 >= 0 && x2 < n && y2 >= 0 && y2 < n &&
+                        x3 >= 0 && x3 < n && y3 >= 0 && y3 < n &&
+                        x4 == i && y4 == j) {
 
-                                int current_sum = 0;
+                        int current_sum = 0;
 
-                                // a 방향으로의 합
-                                for (int k = 0; k < len_a; k++) {
-                                    current_sum += mat[i + k * a[0]][j + k * a[1]];
-                                }
-                                // b 방향으로의 합
-                                for (int k = 0; k < len_b; k++) {
-                                    current_sum += mat[x1 + k * b[0]][y1 + k * b[1]];
-                                }
-                                // c 방향으로의 합
-                                for (int k = 0; k < len_c; k++) {
-                                    current_sum += mat[x2 + k * c[0]][y2 + k * c[1]];
-                                }
-                                // d 방향으로의 합
-                                for (int k = 0; k < len_d; k++) {
-                                    current_sum += mat[x3 + k * d[0]][y3 + k * d[1]];
-                                }
-
-                                // 최대합 갱신
-                                max_sum = max(max_sum, current_sum);
-                            }
+                        for (int k = 0; k < len_a; k++) {
+                            current_sum += mat[i + k * a[0]][j + k * a[1]];
                         }
+
+                        for (int k = 0; k < len_b; k++) {
+                            current_sum += mat[x1 + k * b[0]][y1 + k * b[1]];
+                        }
+
+                        for (int k = 0; k < len_a; k++) {
+                            current_sum += mat[x2 + k * c[0]][y2 + k * c[1]];
+                        }
+
+                        for (int k = 0; k < len_b; k++) {
+                            current_sum += mat[x3 + k * d[0]][y3 + k * d[1]];
+                        }
+
+                        // 최대합 갱신
+                        max_sum = max(max_sum, current_sum);
                     }
                 }
             }
