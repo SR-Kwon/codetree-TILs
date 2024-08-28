@@ -6,12 +6,10 @@ using namespace std;
 int n, m;
 int arr[MAX_N][MAX_N];
 
-// 주어진 k에 대한 마름모 넓이 반환
 int GetArea(int k) {
     return k*k + (k+1)*(k+1);
 }
 
-// 주어진 k에 대하여 채굴 가능한 금의 개수를 반환
 int GetNumOfGold(int row, int col, int k) {
     int num_of_gold = 0;
 
@@ -40,7 +38,6 @@ int main() {
     int max_gold = 0;
     for(int row=0; row<n; row++) {
         for(int col=0; col<n; col++) {
-            // 우측 하단이 마름모 중심일 때 모든 격자를 커버하려면 k가 2*(n-1)까지 커져야 함
             for(int k=0; k<= 2*(n-1); k++) {
                 int num_of_gold = GetNumOfGold(row, col, k);
 
