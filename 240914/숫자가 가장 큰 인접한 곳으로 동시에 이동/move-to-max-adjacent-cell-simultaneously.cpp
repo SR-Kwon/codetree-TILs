@@ -1,94 +1,126 @@
 #include <iostream>
-#include <cstring>
+
+#define DIR_NUM 4
+#define MAX_N 20
 
 using namespace std;
 
-int n, m, t;
-int matrix[21][21];     // 격자판 정보
-int Cnt[21][21];        // 현재 구슬의 위치 정보
-int nextCnt[21][21];    // 다음 시간 구슬 위치 정보
+// 전역 변수 선언:
+int t, n, m;
 
-// 상, 하, 좌, 우 방향 벡터
-int dy[4] = {-1, 1, 0, 0};
-int dx[4] = {0, 0, -1, 1};
+int a[MAX_N + 1][MAX_N + 1];
+int count[MAX_N + 1][MAX_N + 1];
+int next_count[MAX_N + 1][MAX_N + 1];
 
-// 구슬의 이동 및 충돌 처리
-void Solve() {
-    // 다음 구슬 위치를 저장할 배열 초기화
-    memset(nextCnt, 0, sizeof(nextCnt));
+// 범위가 격자 안에 들어가는지 확인합니다.
+bool InRange(int x, int y) {
+    return 1 <= x && x <= n && 1 <= y && y <= n;
+}
 
-    // 현재 구슬 위치에서 이동을 시뮬레이션
-    for (int iRow = 1; iRow <= n; ++iRow) {
-        for (int iCol = 1; iCol <= n; ++iCol) {
-            if (Cnt[iRow][iCol]) {  // 현재 위치에 구슬이 있는 경우
-                int maxNum = -1;
-                int nextY = iRow, nextX = iCol;  // 이동할 위치를 현재 위치로 초기화
+// 인접한 곳들 중 가장 값이 큰 위치를 반환합니다.
+pair<int, int> GetMaxNeighborPos(int curr_x, int curr_y) {
+    // 코딩의 간결함을 위해 
+    // 문제 조건에 맞게 상하좌우 순서로
+    // 방향을 정의합니다.
+    int dx[DIR_NUM] = {-1, 1, 0, 0};
+    int dy[DIR_NUM] = {0, 0, -1, 1};
 
-                // 상하좌우로 이동 가능한 곳 중 가장 큰 숫자 찾기
-                for (int iCnt = 0; iCnt < 4; ++iCnt) {
-                    int ny = iRow + dy[iCnt];
-                    int nx = iCol + dx[iCnt];
-
-                    // 범위 내에 있고, 더 큰 값을 가진 위치 찾기
-                    if (ny >= 1 && nx >= 1 && ny <= n && nx <= n && maxNum < matrix[ny][nx]) {
-                        maxNum = matrix[ny][nx];
-                        nextY = ny;
-                        nextX = nx;
-                    }
-                }
-
-                // 구슬 이동
-                ++nextCnt[nextY][nextX];
-            }
+    int max_num = 0;
+    pair<int, int> max_pos;
+    
+    // 각각의 방향에 대해 나아갈 수 있는 곳이 있는지 확인합니다.
+    for(int i = 0; i < DIR_NUM; i++) {
+        int next_x = curr_x + dx[i];
+        int next_y = curr_y + dy[i];
+        
+        // 범위안에 들어오는 격자 중 최댓값을 갱신합니다.
+        if(InRange(next_x, next_y) && a[next_x][next_y] > max_num) {
+            max_num = a[next_x][next_y];
+            max_pos = make_pair(next_x, next_y);
         }
     }
+    
+    return max_pos;
+}
 
-    // 충돌 처리: 2개 이상의 구슬이 모인 위치는 구슬이 사라짐
-    for (int iRow = 1; iRow <= n; ++iRow) {
-        for (int iCol = 1; iCol <= n; ++iCol) {
-            if (nextCnt[iRow][iCol] > 1) {
-                nextCnt[iRow][iCol] = 0;  // 충돌 시 구슬 제거
-            }
-        }
-    }
+// (x, y) 위치에 있는 구슬을 움직입니다.
+void Move(int x, int y) {
+    // 인접한 곳들 중 가장 값이 큰 위치를 계산합니다.
+    pair<int, int> next_pos = GetMaxNeighborPos(x, y);
+    int next_x = next_pos.first, next_y = next_pos.second;
+    
+    // 그 다음 위치에 구슬의 개수를 1만큼 추가해줍니다.
+    next_count[next_x][next_y]++;
+}
 
-    // 다음 상태를 현재 상태로 갱신
-    memcpy(Cnt, nextCnt, sizeof(Cnt));
+
+// 구슬을 전부 한 번씩 움직여 봅니다.
+void MoveAll() {
+    // 그 다음 각 위치에서의 구슬 개수를 전부 초기화해놓습니다.
+    for(int i = 1; i <= n; i++)
+        for(int j = 1; j <= n; j++)
+            next_count[i][j] = 0;
+    
+    // (i, j) 위치에 구슬이 있는경우 
+    // 움직임을 시도해보고, 그 결과를 전부 next_count에 기록합니다.
+    for(int i = 1; i <= n; i++)
+        for(int j = 1; j <= n; j++)
+            if(count[i][j] == 1)
+                Move(i, j);
+    
+    // next_count 값을 count에 복사합니다.
+    for(int i = 1; i <= n; i++)
+        for(int j = 1; j <= n; j++)
+            count[i][j] = next_count[i][j];
+}
+
+// 충돌이 일어나는 구슬은 전부 지워줍니다.
+void RemoveDuplicateMarbles() {
+    // 충돌이 일어난 구슬들이 있는 위치만 빈 곳으로 설정하면 됩니다.
+    for(int i = 1; i <= n; i++)
+        for(int j = 1; j <= n; j++)
+            if(count[i][j] >= 2)
+                count[i][j] = 0;
+}
+
+// 조건에 맞춰 시뮬레이션을 진행합니다.
+void Simulate() {
+    // Step1
+    // 구슬을 전부 한 번씩 움직여 봅니다.
+    MoveAll();
+    
+    // Step2
+    // 움직임 이후에 충돌이 일어나는 구슬들을 골라 목록에서 지워줍니다.
+    RemoveDuplicateMarbles();
 }
 
 int main() {
-    // 입력 처리
-    cin >> n >> m >> t;
-
-    // 격자 정보 입력
-    for (int iRow = 1; iRow <= n; ++iRow) {
-        for (int iCol = 1; iCol <= n; ++iCol) {
-            cin >> matrix[iRow][iCol];
-        }
+    // 입력:
+	cin >> n >> m >> t;
+	
+	for(int i = 1; i <= n; i++)
+		for(int j = 1; j <= n; j++)
+			cin >> a[i][j];
+	
+    // 초기 count 배열을 설정합니다.
+    // 구슬이 있는 곳에 1을 표시합니다.
+    for(int i = 1; i <= m; i++) {
+        int x, y;
+        cin >> x >> y;
+        count[x][y] = 1;
     }
-
-    // 구슬의 초기 위치 입력
-    for (int iCnt = 0; iCnt < m; ++iCnt) {
-        int r, c;
-        cin >> r >> c;
-        Cnt[r][c] = 1;  // 구슬의 위치를 1로 표시
-    }
-
-    // t초 동안 시뮬레이션 실행
-    while (t--) {
-        Solve();
-    }
-
-    // 최종적으로 남아있는 구슬의 수 계산
-    int res = 0;
-    for (int iRow = 1; iRow <= n; ++iRow) {
-        for (int iCol = 1; iCol <= n; ++iCol) {
-            if (Cnt[iRow][iCol]) ++res;
-        }
-    }
-
-    // 결과 출력
-    cout << res << endl;
-
-    return 0;
+    
+    // t초 동안 시뮬레이션을 진행합니다.
+    while(t--)
+        Simulate();
+	
+    // 출력:
+	int ans = 0;
+	
+	for(int i = 1; i <= n; i++)
+		for(int j = 1; j <= n; j++)
+			ans += count[i][j];
+	
+	cout << ans;
+	return 0;
 }
