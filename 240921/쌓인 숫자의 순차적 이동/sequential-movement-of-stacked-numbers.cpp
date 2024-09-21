@@ -1,118 +1,117 @@
 #include <iostream>
-#include <vector>
 #include <algorithm>
+#include <vector>
+#include <tuple>
 
 #define MAX_N 20
-#define MAX_M 100
+#define DIR_NUM 8
+#define OUT_OF_GRID make_pair(-1, -1)
 
 using namespace std;
-int n, m;
-vector<int> grid[MAX_N][MAX_N];     // 숫자들이 저장되어 있는 격자판
-pair<int, int> location[MAX_N*MAX_N+1];   // location[i]: i번 숫자의 위치
-int dirs[8][2] = {{-1,0},{0,1},{1,0},{0,-1},{-1,-1},{-1,1},{1,-1},{1,1}};    // 인접한 8개 방향
 
-bool InRange(int x, int y){
+int n, m;
+vector<int> grid[MAX_N][MAX_N];
+
+pair<int, int> GetPos(int num) {
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            for(int k = 0; k < (int) grid[i][j].size(); k++)
+                if(grid[i][j][k] == num)
+                    return make_pair(i, j);
+}
+
+bool InRange(int x, int y) {
     return 0 <= x && x < n && 0 <= y && y < n;
 }
 
-int GetNextMaxValue(int x, int y){      // (x,y)위치에서의 가장 숫자를 반환
-    int maxValue = 0;
-    for(int i=0; i<(int)grid[x][y].size(); i++){
-        if(grid[x][y][i] > maxValue){
-            maxValue = grid[x][y][i];
-        }
-    }
-    return maxValue;
-}
-
-
-int findMaxValue(int tgt){
-    int x = location[tgt].first, y = location[tgt].second;
-    int maxV=0;
-    for(int d=0; d<8; d++){
-        // 인접한 8개 방향 확인
-        int nx = x+dirs[d][0], ny = y+dirs[d][1];
-        if(InRange(nx,ny) && grid[nx][ny].size() > 0){
-            // 범위 안에 있고, 숫자가 하나 이상 있다면
-            //그 칸에 있는 숫자들 중 현재 maxV보다 큰 숫자가 있는지 확인
-            int next_v = GetNextMaxValue(nx,ny);
-            maxV = max(maxV, next_v);
-        }
-    }
-
-    return maxV;
-}
-
-void MoveTarget(int tgt, int maxV){     // tgt을 maxV 칸으로 옮기기
-    // 0. 어디로 갈지 위치 저장
-    int fromX = location[tgt].first, fromY = location[tgt].second;
-    int toX = location[maxV].first, toY = location[maxV].second;
-
-    // 1. tgt가 들어있는 칸에서 tgt부터 끝까지 숫자를 모두 옮기기
-    int startIdx = 0;
-    for(int i=0; i<(int)grid[fromX][fromY].size(); i++){
-        if(grid[fromX][fromY][i] == tgt){
-            startIdx = i;
-            break;
+// 그 다음 위치를 찾아 반환합니다.
+pair<int, int> NextPos(pair<int, int> pos) {
+    int dx[DIR_NUM] = {-1, -1, -1, 0, 0, 1, 1, 1};
+    int dy[DIR_NUM] = {-1, 0, 1, -1, 1, -1, 0, 1};
+    
+    int x, y;
+    tie(x, y) = pos;
+    
+    // 인접한 8개의 칸 중 가장 값이 큰 위치를 찾아 반환합니다.
+    int max_val = -1;
+    pair<int, int> max_pos = OUT_OF_GRID;
+    for(int i = 0; i < 8; i++) {
+        int nx = x + dx[i], ny = y + dy[i];
+        if(InRange(nx, ny)) {
+            for(int j = 0; j < (int) grid[nx][ny].size(); j++) {
+                if(grid[nx][ny][j] > max_val) {
+                    max_val = grid[nx][ny][j];
+                    max_pos = make_pair(nx, ny);
+                }
+            }
         }
     }
     
-    for(int i=startIdx; i < (int)grid[fromX][fromY].size(); i++){
-        int curr = grid[fromX][fromY][i];
-        location[curr] = make_pair(toX,toY);
-        grid[toX][toY].push_back(curr);
-
-    }
-    grid[fromX][fromY].erase(grid[fromX][fromY].begin() + startIdx, grid[fromX][fromY].end());
+    return max_pos;
 }
 
-void Move(int tgt){     // tgt를 움직이는 함수
-    // 1. tgt 주변 여덟방향에 대해서 제일 큰 숫자를 찾기
-    int maxNumber = findMaxValue(tgt);
-    // 1-1. 만약 인접한 여덟 방향에 아무 숫자도 없다면 움직이지 않음 
-    if(maxNumber == 0) return;
+void Move(pair<int, int> pos, pair<int, int> next_pos, int move_num) {
+    int x, y;
+    tie(x, y) = pos;
+    
+    int nx, ny;
+    tie(nx, ny) = next_pos;
+    
+    // Step1. (x, y) 위치에 있던 숫자들 중
+    // move_num 위에 있는 숫자들을 전부 옆 위치로 옮겨줍니다.
+    bool to_move = false;
+    for(int i = 0; i < (int) grid[x][y].size(); i++) {
+        if(grid[x][y][i] == move_num)
+            to_move = true;
+        
+        if(to_move)
+            grid[nx][ny].push_back(grid[x][y][i]);
+    }
+    
+    // Step2. (x, y) 위치에 있던 숫자들 중
+    // 움직인 숫자들을 전부 비워줍니다.
+    while(grid[x][y].back() != move_num)
+        grid[x][y].pop_back();
+    grid[x][y].pop_back();
+}
 
-    // 2-2. 제일 큰 숫자가 있는 칸으로 이동하기
-    MoveTarget(tgt, maxNumber);
-
-    return;
+void Simulate(int move_num) {
+    // 그 다음으로 나아가야할 위치를 구해
+    // 해당 위치로 숫자들을 옮겨줍니다.
+    pair<int, int> pos = GetPos(move_num);
+    pair<int, int> next_pos = NextPos(pos);
+    if(next_pos != OUT_OF_GRID)
+        Move(pos, next_pos, move_num);
 }
 
 int main() {
-    // 변수 선언 및 입력:
-    cin >> n >> m;      // n: 격자 크기, m: 움직임 횟수
-    for(int i=0; i<n; i++){
-        for(int j=0; j<n; j++){
-            int num;
-            cin >> num;
+	cin >> n >> m;
+		
+	for(int i = 0; i < n; i++)
+		for(int j = 0; j < n; j++) {
+			int num;
+			cin >> num; 
             grid[i][j].push_back(num);
-            location[num] = make_pair(i,j);
-        }
-    }
-    // 움직일 m개의 숫자 입력받기
-    for(int i=0; i<m; i++){
-        int curr;
-        cin >> curr;
-        Move(curr);  
-    }
-
-    // 각 위치에 적혀있는 숫자를 출력하기
-    for(int i=0; i<n; i++){
-        for(int j=0; j<n; j++){
-            // 만약 해당 위치에 아무 숫자도 없다면
-            if(grid[i][j].size() == 0){
-                cout << "None" << '\n';
-            }
-            // 만약 숫자가 있다면 
-            else{
-                for(int idx = grid[i][j].size()-1; idx >= 0; idx--)
-                    cout << grid[i][j][idx] << ' ';
-                cout << '\n';
-            }
-        }
-    }
-    
-    
-    
-    return 0;
+		}
+	
+    // m번 시뮬레이션을 진행합니다.
+	while(m--) {
+		int move_num;
+		cin >> move_num;
+        Simulate(move_num);
+	}
+	
+	for(int i = 0; i < n; i++) {
+		for(int j = 0; j < n; j++) {
+			if((int) grid[i][j].size() == 0)
+				cout << "None";
+			else {
+				for(int k = (int) grid[i][j].size() - 1; k >= 0; k--)
+					cout << grid[i][j][k] << " ";
+			}
+			cout << endl;
+		}
+	}
+	
+	return 0;
 }
