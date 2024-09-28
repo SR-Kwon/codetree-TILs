@@ -1,76 +1,89 @@
 #include <iostream>
+#include <utility>
+#include <tuple>
+
 #define MAX_N 100
-#define INT_SUM 7
+#define ASCII_NUM 128
+#define DIR_NUM 4
+#define OUT_OF_GRID make_pair(-1, -1)
+
 using namespace std;
 
-int n, m, r, c;
-char move_dir;
-int curU = 1, curF = 2, curR = 3;
-int dx[4] = {-1,0,1,0};
-int dy[4] = {0,1,0,-1};
-int ans;
+int n, m;
+int x, y;
+
 int grid[MAX_N][MAX_N];
 
-bool InRange(int x, int y){
+// 주사위가 놓여있는 상태 
+int u = 1, f = 2, r = 3;
+
+// 격자 안에 있는지를 확인합니다.
+bool in_range(int x, int y) {
     return 0 <= x && x < n && 0 <= y && y < n;
 }
 
-void update_dice(){
-    int nextU, nextF, nextR;
-    if(move_dir == 'U'){
-        nextU = curF, nextF = INT_SUM-curU, nextR = curR;
-    }
-    else if(move_dir == 'R'){
-        nextU = INT_SUM-curR, nextF = curF, nextR = curU;
-    }
-    else if(move_dir == 'D'){
-        nextU = INT_SUM-curF, nextF = curU, nextR = curR;
-    }
-    else{
-        nextU = curR, nextF = curF, nextR = INT_SUM-curU;
-    }
-    curU = nextU, curF = nextF, curR = nextR;
-
+// 해당 방향으로 이동했을 때의 다음 위치를 구합니다.
+// 이동이 불가능할 경우 OUT_OF_GRID를 반환합니다.
+pair<int, int> NextPos(int x, int y, int move_dir) {
+	int dx[DIR_NUM] = {0, 0, -1, 1};
+	int dy[DIR_NUM] = {1, -1, 0, 0};
+	int nx = x + dx[move_dir], ny = y + dy[move_dir];
+	if(in_range(nx, ny))
+		return make_pair(nx, ny);
+	else
+		return OUT_OF_GRID;
 }
 
-int GetDirNum(){
-    int ret;
-    if(move_dir == 'U'){
-        ret = 0;
-    }
-    else if(move_dir == 'R'){
-        ret = 1;
-    }
-    else if(move_dir == 'D'){
-        ret = 2;
-    }
-    else{
-        ret = 3;
-    }
-    return ret;
+void Simulate(int move_dir) {
+    // move_dir 방향으로 굴렸을 때의 격자상의 위치를 구합니다.
+    pair<int, int> next_pos = NextPos(x, y, move_dir);
+    // 굴리는게 불가능한 경우라면 패스합니다.
+    if(next_pos == OUT_OF_GRID)
+        return;
+    
+    // 위치를 이동합니다.
+    tie(x, y) = next_pos;
+    
+    // 주사위가 놓여있는 상태를 조정합니다.
+    if(move_dir == 0) // 동쪽
+        tie(u, f, r) = make_tuple(7 - r, f, u);
+    else if(move_dir == 1) // 서쪽
+        tie(u, f, r) = make_tuple(r, f, 7 - u);
+    else if(move_dir == 2) // 북쪽
+        tie(u, f, r) = make_tuple(f, 7 - u, r);
+    else // 남쪽
+        tie(u, f, r) = make_tuple(7 - f, u, r);
+    
+    // 바닥에 적혀있는 숫자를 변경합니다.
+    int down = 7 - u;
+    grid[x][y] = down;
 }
 
 int main() {
-    cin >> n >> m >> r >> c;    // n: 격자 크기, m: 주사위 굴릴 횟수, (r,c): 초기 위치
-    r--; c--;
-    // Step 1. 현재 주어진 위치에 초기 숫자 적기
-    grid[r][c] = INT_SUM-curU;
-
-    for(int i=0; i<m; i++){
-        cin >> move_dir;        // 움직이는 방향
-        int d = GetDirNum();
-        int nx = r+dx[d], ny = c+dy[d];
-        //  2-1. 움직일 수 있다면 주사위 모양 특정 위해 up, front, right 업데이트
-        if(InRange(nx,ny)){
-            r = nx, c = ny;
-            update_dice();
-            grid[r][c] = INT_SUM-curU;
-        }
-
+    // 입력:
+    cin >> n >> m >> x >> y; x--; y--;
+    
+    int dir_mapper[ASCII_NUM];
+    dir_mapper['R'] = 0;
+    dir_mapper['L'] = 1;
+    dir_mapper['U'] = 2;
+    dir_mapper['D'] = 3;
+    
+    // 시뮬레이션 진행
+    grid[x][y] = 6;
+    for(int i = 0; i < m; i++) {
+        char char_dir;
+        cin >> char_dir;
+        
+        Simulate(dir_mapper[char_dir]);
     }
-    for(int i=0; i<n; i++)
-        for(int j=0; j<n; j++)
+    
+    int ans = 0;
+    
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
             ans += grid[i][j];
+    
     cout << ans;
     return 0;
 }
