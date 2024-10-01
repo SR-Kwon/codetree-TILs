@@ -1,90 +1,154 @@
 #include <iostream>
 #include <vector>
-#define MAX_N 100
+
+#define MAX_NUM 100
 #define ASCII_NUM 128
+
 using namespace std;
 
-int n, m, k;                    // n: 격자 크기, m: 사과 개수, k: 뱀 방향 변환 횟수
-vector<pair<int, int> > snake;  // 뱀의 연결 관계를 저장
-bool isApple[MAX_N+1][MAX_N+1]; // 해당 칸에 사과가 들어있는지 확인
-// 방향 정보, 위/아래/오/왼 방향대로 0,1,2,3 저장
-int directions[ASCII_NUM];
-int dx[4] = {-1,1,0,0};
-int dy[4] = {0,0,1,-1};
+int n, m, K;
+bool apple[MAX_NUM + 1][MAX_NUM + 1];
+
+vector<pair<int, int> > snake;
+
+int dx[4] = {1, -1, 0, 0};
+int dy[4] = {0, 0, 1, -1};
+
+int mapper[ASCII_NUM];
+
 int ans;
 
-bool InRange(int x, int y){
-    return 1 <= x && x <= n && 1 <= y && y <= n;
+// (x, y)가 범위 안에 들어가는지 확인합니다. 
+bool CanGo(int x, int y) {
+    return x >= 1 && y >= 1 && x <= n && y <= n;
 }
 
-bool IsOverlapped(pair<int, int> next_head){    // next_head가 뱀의 몸통 부분과 겹치는지 확인
-    for(int i=0; i<(int)snake.size(); i++){
-        int cx = snake[i].first, cy = snake[i].second;
-        if(cx == next_head.first && cy == next_head.second)
-            return true;
-    }
-    return false;
+// 뱀이 꼬였는지 확인합니다.
+bool IsTwisted(pair<int, int> newHead) {
+    // 뱀이 꼬였는지 여부는
+    // 새로 들어올 머리가 기존 뱀의 몸통과 부딪히는지만 확인하면 됩니다.
+    
+	 // 머리와 그 부분이 겹치는 경우에는
+	// true 값을 반환해줍니다.
+    for(int i = 0; i < (int) snake.size(); i++)
+        if(newHead == snake[i])                        
+            return true;                                
+    
+	 // 겹치지 않는 경우에는 false를 반환합니다.
+    return false; 
 }
 
-bool Simulate(int move_dir, int dist){      // move_dir 방향으로 dist만큼 움직이는 함수
-    int move_dist = dist;
-    while(move_dist--){
-        ans++;
-        pair<int, int> head = snake.front();
-        //cout << head.first << ' ' <<head.second << '\n';
-        int nx = head.first + dx[move_dir], ny = head.second + dy[move_dir];    // 머리가 움직일 다음 위치
+// 새로운 머리를 추가합니다.
+bool PushFront(pair<int, int> newHead) {
+	// 몸이 꼬이는 경우
+	// false를 반환합니다.
+    if(IsTwisted(newHead) == true)                        
+        return false;                                     
+    
+	// 새로운 머리를 추가합니다.
+    snake.insert(snake.begin(), newHead);                
 
-        // 1. 만약 머리가 움직일 곳이 범위를 벗어나면 false 리턴
-        if(!InRange(nx, ny))    return false;
-        // 2. 범위 안이라면
-        // 2-1. 만약 그곳에 사과가 있다면
-        if(isApple[nx][ny]){
-            isApple[nx][ny] = false;    // 사과 먹었다고 표시
-            snake.insert(snake.begin(), make_pair(nx,ny));
+	// 정상적으로 머리를 추가헀다는 의미로
+	// true를 반환합니다.
+    return true;                                         
+}                                                         
 
-        }
-        // 2-2. 만약 사과가 없다면
-        else{
-            // 1. 먼저 꼬리를 빼주기
-            pair<int, int> tail = snake.back(); // 꼬리 위치
-            snake.pop_back();   // 맨 뒤에 꼬리 빼주기
-            // 2. 만약 겹친다면 false 리턴
-            if(IsOverlapped(make_pair(nx,ny))){
-                return false;
-            }
-            // 겹치지 않는다면 vector에 넣기
-            snake.insert(snake.begin(), make_pair(nx,ny));
-        }
-
-    }
-    return true;
+// 꼬리를 지웁니다.
+void PopBack() {
+    snake.pop_back();                                    
 }
 
-int main(){
-    // 입력:
-    cin >> n >> m >> k;
-    for(int i=0; i<m; i++){
-        int x, y;
-        cin >> x >> y;
-        isApple[x][y] = true;
-    }
-    // 방향 정보 저장
-    directions['U'] = 0;
-    directions['D'] = 1;
-    directions['R'] = 2;
-    directions['L'] = 3;
-    snake.push_back(make_pair(1,1));    // 뱀은 처음에 좌측 상단 (1,1)에 길이 1의 상태로 있음
+// (nx, ny) 쪽으로 뱀을 움직입니다.
+bool MoveSnake(int nx, int ny) {
+	// 머리가 이동할 자리에 사과가 존재하면
+	// 사과는 사라지게 되고
+    if(apple[nx][ny] == true) {                           
+        apple[nx][ny] = false;
+		// 꼬리는 사라지지 않고 머리만 늘어납니다.
+		// 늘어난 머리때문에 몸이 꼬이게 된다면
+		// false를 반환합니다.
+        if(PushFront(make_pair(nx, ny)) == false)         
+            return false;                                 
+    }                                                     
+    else {
+		// 사과가 없으면 꼬리는 사라지게 되고
+        PopBack();
+		
+		// 머리는 늘어나게 됩니다.
+		// 늘어난 머리때문에 몸이 꼬이게 된다면
+		// false를 반환합니다.
+        if(PushFront(make_pair(nx, ny)) == false)         
+            return false;                                 
+    }       
+	
+	// 정상적으로 뱀이 움직였으므로
+    // true를 반환합니다.
+    return true;                                         
+}                                                         
 
-    while(k--){
-        char d; int p;
-        cin >> d >> p;
-        int move_dir = directions[d];
-        if(!Simulate(move_dir, p)){     // move_dir 방향으로 p만큼 움직이지 못한다면
-            break;                      // 반복문 빠져나가기
-        }
+// 뱀을 dir 방향으로 num 번 움직입니다.
+bool Move(int dir, int num) {
+	// num 횟수만큼 뱀을 움직입니다.
+	// 한 번 움직일때마다 답을 갱신합니다.
+    while(num--) {                              
+        ans++;                                  
+
+        pair<int, int> head = snake.front(); 
+
+		// 뱀의 머리가 그다음으로 움직일
+		// 위치를 구합니다.
+        int nx = head.first + dx[dir];          
+        int ny = head.second + dy[dir];         
+
+		// 그 다음 위치로 갈 수 없다면
+		// 게임을 종료합니다.
+        if(CanGo(nx, ny) == false)              
+            return false;                       
+
+		// 뱀을 한 칸 움직입니다.
+		// 만약 몸이 꼬인다면 false를 반환합니다.
+        if(MoveSnake(nx, ny) == false)          
+            return false;                       
     }
     
+	// 정상적으로 명령을 수행했다는 의미인 true를 반환합니다.
+    return true;                               
+}
+
+int main() {
+    // 입력으로 주어진 방향을 정의한 dx, dy에 맞도록 
+	// 변환하는데 쓰이는 배열을 정의합니다.
+    mapper['D'] = 0;
+    mapper['U'] = 1;
+    mapper['R'] = 2;
+    mapper['L'] = 3;
+	
+    // 입력:
+    cin >> n >> m >> K;
+	
+    // 사과가 있는 위치를 표시합니다.
+	for(int i = 0; i < m; i++) {
+        int x, y;
+        cin >> x >> y;
+        apple[x][y] = true;
+	}
+
+    // 뱀은 처음에 (1, 1)에서 길이 1의 상태로 있습니다.
+    snake.push_back(make_pair(1, 1));
+
+    // K개의 명령을 수행합니다.
+    for(int i = 0; i < K; i++) {
+		// dir 방향으로 num 횟수 만큼 움직여야 합니다.
+        char dir; int num;
+        cin >> dir >> num;                 
+
+		// 움직이는 도중 게임이 종료되었을 경우
+		// 더 이상 진행하지 않습니다.
+        if(Move(mapper[dir], num) == false) 
+            break;                         
+    }
+
     // 출력:
-    cout << ans;    
+    cout << ans;
     return 0;
 }
