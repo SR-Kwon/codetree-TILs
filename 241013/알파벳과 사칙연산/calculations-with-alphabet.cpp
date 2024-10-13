@@ -1,55 +1,56 @@
 #include <iostream>
-#include <string>
 #include <algorithm>
+#include <string>
 #include <climits>
-using namespace std;
 
 #define MAX_N 6
 
-string ex;
-int a2n[MAX_N] = {0};
+using namespace std;
 
-int calc(int a, int b, char op)
-{
-    if (op == '+') return a + b;
-    else if (op == '-') return a - b;
-    else if (op == '*') return a * b;
+int n = 6;
 
-    return a;
+string expression;
+int num[MAX_N];
+int ans = INT_MIN;
+
+int Conv(int idx) {
+	return num[expression[idx] - 'a'];
 }
 
-int solve(int idx)
-{
-    if (idx >= MAX_N) 
-    {
-        char op = '+';
-        int result = 0;
-        for (int i = 0; i < ex.length(); i++)
-        {
-            if (ex[i] >= 'a' && ex[i] <= 'f') 
-                result = calc(result, a2n[ex[i] - 'a'], op);
-            else
-                op = ex[i];
-        }
+int Calc() {
+	int length = (int) expression.size();
+	int value = Conv(0);
+	for(int i = 2; i < length; i += 2) {
+		if(expression[i - 1] == '+')
+			value += Conv(i);
+		else if(expression[i - 1] == '-')
+			value -= Conv(i);
+		else
+			value *= Conv(i);
+	}
+	return value;
+}
 
-        return result;
-    }
-
-    int ret = INT_MIN;
-    for (int i = 1; i <= 4; i++)
-    {
-        a2n[idx] = i;
-        ret = max(ret, solve(idx + 1));
-        a2n[idx] = 0;
-    }
-
-    return ret;
+// 'a'부터 'f'까지 순서대로
+// 0부터 5번째 index까지의 값을 
+// 1~4 중에 하나로 채웁니다.
+void FindMax(int cnt) {
+	if(cnt == n) {
+		ans = max(ans, Calc());
+		return;
+	}
+	
+	for(int i = 1; i <= 4; i++) {
+		num[cnt] = i;
+		FindMax(cnt + 1);
+	}
 }
 
 int main() {
-    cin >> ex; 
-
-    cout << solve(0);
-
-    return 0;
+	cin >> expression;
+	
+	FindMax(0);
+	cout << ans;
+    
+	return 0;
 }
