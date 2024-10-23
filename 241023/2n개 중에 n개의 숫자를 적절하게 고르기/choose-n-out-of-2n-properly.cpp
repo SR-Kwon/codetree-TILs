@@ -1,45 +1,52 @@
 #include <iostream>
-#include <vector>
 #include <algorithm>
-#include <cstdlib>
+#include <cmath>
 #include <climits>
 
 #define MAX_N 10
-using namespace std;
-int n;
-int m;
-int arr[MAX_N*2];
-int total;
 
-vector<int> selected;
+using namespace std;
+
+int n;
+int num[2 * MAX_N];
+bool visited[2 * MAX_N];
+
 int ans = INT_MAX;
 
+int Calc() {
+    int diff = 0;
+    for(int i = 0; i < 2 * n; i++)
+        diff = (visited[i]) ? (diff + num[i]) : (diff - num[i]);
+    
+    return abs(diff);
+}
 
-void ChooseHalf(int idx, int curSum){
-    if((int)selected.size() >= n){
-        ans = min(ans, abs(total-curSum-curSum));
+void FindMin(int idx, int cnt) {
+	if(cnt == n) {
+		ans = min(ans, Calc());
         return;
     }
-    int curr = curSum;
-    for(int i=idx; i<m; i++){
-        selected.push_back(arr[i]);
-        curr += arr[i];
-        ChooseHalf(i+1, curr);
-        selected.pop_back();
-        curr -= arr[i];
-        if(selected.size() == 0) return;
-    }
+    
+    if(idx == 2 * n)
+		return;
+    
+    // 현재 숫자를 첫 번째 그룹에 사용한 경우입니다.
+    visited[idx] = true;
+	FindMin(idx + 1, cnt + 1);
+    visited[idx] = false;
+    
+    // 현재 숫자를 두 번째 그룹에 사용한 경우입니다.
+	FindMin(idx + 1, cnt);
 }
+
 int main() {
-    cin >> n;
-    m = 2*n;
-    for(int i=0; i<m; i++){
-        cin >> arr[i];
-        total += arr[i];
-    }
-
-    ChooseHalf(0,0);  // 2n개 중 총 n개 원소를 고르는 함수(0번째 원소를 선택하러 감)
-    cout << ans;
-
-    return 0;
+	cin >> n;
+	
+	for(int i = 0; i < 2 * n; i++)
+		cin >> num[i];
+	
+	FindMin(0, 0);
+	
+	cout << ans;
+	return 0;
 }
