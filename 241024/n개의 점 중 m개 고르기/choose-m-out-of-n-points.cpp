@@ -1,60 +1,72 @@
-#include <bits/stdc++.h>
-using namespace std;
-using ll = long long;
+#include <iostream>
+#include <algorithm>
+#include <tuple>
+#include <climits>
+#include <vector>
 
-#define MX 20
-#define X first
-#define Y second
-#define INF 987654321
+#define MAX_N 20
+
+using namespace std;
 
 int n, m;
-pair<int, int> dot[MX];
-pair<int, int> selected_dot[MX];
-ll ans = INF; // 거리가 가장 먼 두 점 사이의 거리의 최솟값
+pair<int, int> points[MAX_N];
 
-void getInput();
-ll calculateMaxDist(); // 고른 점들의 거리의 최솟값을 반환
-void selectDot(int cur, int cnt);
+vector<pair<int, int> > selected_points;
+
+int ans = INT_MAX;
+
+int Dist(pair<int, int> p1, pair<int, int> p2) {
+    int x1, y1;
+    tie(x1, y1) = p1;
+    
+    int x2, y2;
+    tie(x2, y2) = p2;
+    
+	return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+}
+
+int Calc() {
+	int max_dist = 0;
+    
+    // 가장 먼 거리를 반환합니다.
+	for(int i = 0; i < m; i++) 
+		for(int j = i + 1; j < m; j++) 
+			max_dist = max(max_dist, 
+                           Dist(selected_points[i], selected_points[j]));
+		
+	return max_dist;
+}
+
+void FindMin(int idx, int cnt) {
+    if(cnt == m) {
+        // 가장 먼 거리 중 최솟값을 선택합니다.
+		ans = min(ans, Calc());
+        return;
+    }
+    
+	if(idx == n) 
+		return;
+	
+    // 점을 선택하는 경우입니다.
+	selected_points.push_back(points[idx]);
+	FindMin(idx + 1, cnt + 1);
+	selected_points.pop_back();
+    
+    // 점을 선택하지 않는 경우입니다.
+	FindMin(idx + 1, cnt);
+}
 
 int main() {
-    getInput();
-    selectDot(0, 0);
-    cout << ans;
-    return 0;
-}
-
-ll calculateMaxDist(){   
-    ll res = 0;
-    for(int i = 0; i < m; i++){
-        for(int j = i+1; j < m; j++){
-            int x = abs(selected_dot[i].X - selected_dot[j].X);
-            int y = abs(selected_dot[i].Y - selected_dot[j].Y);
-            res = max(res, ll(x*x + y*y));
-        }
+	cin >> n >> m;
+	
+	for(int i = 0; i < n; i++) {
+		int x, y;
+        cin >> x >> y;
+        points[i] = make_pair(x, y);
     }
-    return res;
-}
-
-void selectDot(int cur, int cnt){
-    if(cnt == m){ // m 개를 모두 고른 경우
-        ans = min(ans, calculateMaxDist());
-        return;
-    }
-    if(cur == n){ // n개의 점을 모두 탐색한 경우
-        return;
-    }
-
-    // 현재 점을 선택한 경우
-    selected_dot[cnt] = dot[cur];
-    selectDot(cur+1, cnt+1);
-
-    // 현재 점을 선택하지 않은 경우
-    selectDot(cur+1, cnt);
-}
-
-void getInput(){
-    cin >> n >> m;
-    for(int i = 0; i < n; i++){
-        cin >> dot[i].X >> dot[i].Y;
-    }
+	
+	FindMin(0, 0);
+	
+	cout << ans;
+	return 0;
 }
