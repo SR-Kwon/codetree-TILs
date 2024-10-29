@@ -1,71 +1,83 @@
-//
-// Created by 오지환 on 2023/08/25.
-//
-#include<iostream>
-#include<vector>
-#include<algorithm>
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+#define MAX_NUM 25
+#define DIR_NUM 4
+
 using namespace std;
 
-int map[25][25];
-bool check[25][25];
-vector<pair<int, int>> starts;
-int N, people, cnt; // cnt : 마을 갯수
-vector<int> ans; // ans : 각 마을 당 인원 수를 담은 vector
+int n;
+int grid[MAX_NUM][MAX_NUM];
+bool visited[MAX_NUM][MAX_NUM];
+vector<int> people_nums;
+int people_num;
 
-int dx[4] = { 1,0,-1,0 };
-int dy[4] = { 0,1,0,-1 };
+// 탐색하는 위치가 격자 범위 내에 있는지 여부를 반환합니다.
+bool InRange(int x, int y) {
+    return x >= 0 && x < n && y >= 0 && y < n;
+}
 
-void dfs(int x, int y) {
-    check[x][y] = true;
-    people++;
+// 탐색하는 위치로 움직일 수 있는지 여부를 반환합니다.
+bool CanGo(int x, int y) {
+    if(!InRange(x, y))
+        return false;
 
-    for (int i = 0; i < 4; i++) {
-        int curx = x + dx[i];
-        int cury = y + dy[i];
+    if(visited[x][y] || grid[x][y] == 0)
+        return false;
 
-        if (curx < 0 || curx >= N || cury < 0 || cury >= N) { // 좌표 밖으로 벗어났을 때
-            continue;
+    return true;
+}
+
+void DFS(int x, int y) {
+    //0: 오른쪽, 1: 아래쪽, 2: 왼쪽, 3: 위쪽
+    int dx[DIR_NUM] = {0, 1, 0, -1};
+    int dy[DIR_NUM] = {1, 0, -1, 0};
+
+    // 네 방향에 각각에 대하여 DFS 탐색을 합니다.
+    for(int dir = 0; dir < DIR_NUM; dir++) {
+        int new_x = x + dx[dir];
+        int new_y = y + dy[dir];
+
+        if(CanGo(new_x, new_y)){
+            visited[new_x][new_y] = true;
+            // 마을에 존재하는 사람을 한 명 추가해줍니다.
+            people_num++;
+            DFS(new_x, new_y);
         }
-
-        if (map[curx][cury] == 0 || check[curx][cury]) { // 해당 좌표에 벽이 있거나 방문한 적이 있을 때
-            continue;
-        }
-
-        dfs(curx, cury);
     }
-
 }
 
 int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(NULL);
-    cout.tie(NULL);
+    cin >> n;
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            cin >> grid[i][j];
 
-    cin >> N;
+    // 격자의 각 위치에서 탐색을 시작할 수 있는 경우
+    // 한 마을에 대한 DFS 탐색을 수행합니다.
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < n; j++) {
+            if(CanGo(i, j)) {
+                // 해당 위치를 방문할 수 있는 경우 visited 배열을 갱신하고
+                // 새로운 마을을 탐색한다는 의미로 people_num을 1으로 갱신합니다.
+                visited[i][j] = true;
+                people_num = 1;
 
-    for (int i = 0; i < N; i++) {
-        for (int j = 0; j < N; j++) {
-            cin >> map[i][j];
-            if (map[i][j] == 1) {
-                starts.push_back(make_pair(i, j));
+                DFS(i, j);
+
+                // 한 마을에 대한 탐색이 끝난 경우 마을 내의 사람 수를 저장합니다.
+                people_nums.push_back(people_num);
             }
         }
     }
 
-    for (int i = 0; i < starts.size(); i++) {
-        if (!check[starts[i].first][starts[i].second]) { // 방문한 적이 없는 곳
-            people = 0;
-            cnt++;
-            dfs(starts[i].first, starts[i].second);
-            ans.push_back(people);
-        }
-    }
+    // 각 마을 내 사람의 수를 오름차순으로 정렬합니다.
+    sort(people_nums.begin(), people_nums.end());
 
-    sort(ans.begin(), ans.end());
+    cout << (int) people_nums.size() << endl;
+    for(int i = 0; i < (int) people_nums.size(); i++)
+        cout << people_nums[i] << endl;
 
-    cout << cnt << "\n";
-    for (auto a : ans) {
-        cout << a << "\n";
-    }
+    return 0;
 }
-// 피드백 : 상하좌우가 모두 움직이는 상황에서 좌표가 음수가 되는 것도 고려하기!
