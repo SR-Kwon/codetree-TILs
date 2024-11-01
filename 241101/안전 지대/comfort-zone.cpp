@@ -1,80 +1,101 @@
 #include <iostream>
-#include <climits>
-#include <cstring>
-#include <vector>
+#include <algorithm>
+
+#define MAX_N 50
+#define MAX_M 50
+#define MAX_HEIGHT 100
+#define DIR_NUM 4
+
 using namespace std;
 
-int n, m, k;
-int max_region;
-int max_val = INT_MIN;
-int dx[4] = { 1,0,-1,0 };
-int dy[4] = { 0,1,0,-1 };
-int town[51][51];
-bool visited[51][51];
-vector<int> safe_region;
+int n, m;
+int grid[MAX_N][MAX_M];
+bool visited[MAX_N][MAX_M];
+int zone_num;
 
+// visited 배열을 초기화해줍니다.
+void InitializeVisited() {
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < m; j++)
+            visited[i][j] = false;
+}
+
+// 탐색하는 위치가 격자 범위 내에 있는지 여부를 반환합니다.
 bool InRange(int x, int y) {
-	return x >= 0 && x < n && y >= 0 && y < m;
+    return x >= 0 && x < n && y >= 0 && y < m;
 }
 
-bool canGo(int x, int y) {
-	if (!InRange(x, y))
-		return false;
-	else if (town[x][y] <= k || visited[x][y])
-		return false;
-	else
-		return true;
+// 탐색하는 위치로 움직일 수 있는지 여부를 반환합니다.
+bool CanGo(int x, int y, int k) {
+    if(!InRange(x, y)) 
+        return false;
+
+    if(visited[x][y] || grid[x][y] <= k)
+        return false;
+
+    return true;
 }
 
-void dfs(int cur_x, int cur_y) {
-	visited[cur_x][cur_y] = true;
+void DFS(int x, int y, int k) {
+    //0: 오른쪽, 1: 아래쪽, 2: 왼쪽, 3: 위쪽
+    int dx[DIR_NUM] = {0, 1, 0, -1};
+    int dy[DIR_NUM] = {1, 0, -1, 0};
+    
+    // 네 방향에 각각에 대하여 DFS 탐색을 합니다.
+    for(int dir = 0; dir < DIR_NUM; dir++) {
+        int new_x = x + dx[dir];
+        int new_y = y + dy[dir];
 
-	for (int i = 0; i < 4; i++) {
-		int new_x = cur_x + dx[i];
-		int new_y = cur_y + dy[i];
+        if(CanGo(new_x, new_y, k)){
+            visited[new_x][new_y] = true;
+            DFS(new_x, new_y, k);
+        }
+    }
+}
 
-		if (canGo(new_x, new_y)) {
-			dfs(new_x, new_y);
-		}
-	}
+void GetZoneNum(int k) {
+    // 새로운 탐색을 시작한다는 의미로 zone_num를 0으로 갱신하고 
+    // visited 배열을 초기화해줍니다.
+    zone_num = 0;
+    InitializeVisited();
+    
+    // 격자의 각 위치에 대하여 탐색을 시작할 수 있는 경우
+    // 해당 위치로부터 시작한 DFS 탐색을 수행합니다.
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < m; j++) {
+            if(CanGo(i, j, k)) {
+                // 해당 위치를 탐색할 수 있는 경우 visited 배열을 갱신하고
+                // 안전 영역을 하나 추가해줍니다.
+                visited[i][j] = true;
+                zone_num++;
+
+                DFS(i, j, k);
+            }
+        }
 }
 
 int main() {
-	cin >> n >> m;
+    // 가능한 안전 영역의 최솟값이 0이므로 다음과 같이 초기화 해줄 수 있습니다.
+    int max_zone_num = -1; 
+    int answer_k = 0;
 
-	for (int i = 0; i < n; i++) {
-		for (int j = 0; j < m; j++) {
-			cin >> town[i][j];
-		}
-	}
+    cin >> n >> m;
 
-	for (k = 1; k <= 100; k++) {
-		int cnt = 0;
-		// visited 2차원 배열 초기화 (cstring 필요)
-		memset(visited, false, sizeof(visited));
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < m; j++)
+            cin >> grid[i][j];
 
-		// DFS 간선 없는 경우도 탐색하는 방법
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
-				// 새로운 정점에 들어갈 때 마을 높이와 방문 여부 체크 필요
-				// dfs를 수행하고 마치면, dfs 수행 지역 만큼이 하나의 그룹(cnt)이 됨
-				if (town[i][j] > k && !visited[i][j]) {
-					dfs(i, j);
-					cnt++;
-				}
-			}
-		}
+    // 각 가능한 비의 높이에 대하여 안전 영역의 수를 탐색합니다.
+    for(int k = 1; k <= MAX_HEIGHT; k++){
+        GetZoneNum(k);
 
-		safe_region.push_back(cnt);
-	}
+        // 기존의 최대 영역의 수보다 클 경우 이를 갱신하고 인덱스를 저장합니다.
+        if(zone_num > max_zone_num) {
+            max_zone_num = zone_num;
+            answer_k = k;
+        }
+    }
 
-	for (int i = 0; i < safe_region.size(); i++) {
-		if (safe_region[i] > max_val) {
-			max_region = i + 1;
-			max_val = safe_region[i];
-		}
-	}
-
-	cout << max_region << ' ' << max_val << '\n';
-	return 0;
+    cout << answer_k << " " << max_zone_num;
+    return 0;
 }
